@@ -25,9 +25,7 @@ https://github.com/openstack/python-novaclient
 
 We will be using the workstation to create the servers and work with the chef server to configure the systems afterwards.  You can clone the jarfly repository befor getting started.
 
-<pre>
     # git clone https://github.com/shannonmitchell/jarfly
-</pre>
 
 
 The python scripts requires a .rackspace_cloud_credentials file in your home directory. 
@@ -40,11 +38,9 @@ The python scripts requires a .rackspace_cloud_credentials file in your home dir
 
 If you want a different region then DFW you may want create a pyrax config file as well. 
 
-<code>
-# vi ~/.pyrax.cfg
-[settings]
-region = ORD
-</code>
+    # vi ~/.pyrax.cfg
+    [settings]
+    region = ORD
 
 
 
