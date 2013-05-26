@@ -155,8 +155,8 @@ def main():
 
     # Parse the command line arguments
     parser = argparse.ArgumentParser(
-        description="Create controller server. For cloude edge env.",
-        prog='create_controller')
+        description="Create chef server for cloud edge env.",
+        prog='create_chef_server.py')
     parser.add_argument(
         '--image', help='image id or name Ubuntu 12.10 \
         (Quantal Quetzal)', default='Ubuntu 12.10 (Quantal Quetzal)')
