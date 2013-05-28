@@ -5,6 +5,7 @@ import sys
 import time
 import pyrax
 import argparse
+import subprocess
 
 
 # Create a function to take care of the dns record creation
@@ -107,6 +108,39 @@ def check_pub_key_file(given_filename):
                 Please create using a ssh-keygen and run again."
 
 
+# Create the chef install script
+def create_install_script(cs_files):
+    content = """
+    # Install from the opscode website instructions.
+    cd /root
+    wget https://opscode-omnibus-packages.s3.amazonaws.com/ubuntu/12.04/x86_64/chef-server_11.0.8-1.ubuntu.12.04_amd64.deb
+    dpkg -i chef-server_11.0.8-1.ubuntu.12.04_amd64.deb
+    chef-server-ctl reconfigure
+
+    # Install the client
+    curl -L https://www.opscode.com/chef/install.sh | sudo bash
+
+    # Prepare the firewall
+    ufw allow 22
+    ufw allow 80
+    ufw allow 443
+    ufw --force enable
+
+    # Update and Upgrade
+    apt-get -y update
+    apt-get -y upgrade
+
+    # Remove me after a reboot
+    echo '' > /etc/rc.local
+
+    # Reboot the box
+    reboot
+
+    """
+    cs_files['/root/install_chef.sh'] = content
+    return cs_files
+
+
 # Create the instance
 def create_server(csobj, instance_name, flavor_id, image_id, files_dict):
 
@@ -157,9 +191,9 @@ def main():
     parser = argparse.ArgumentParser(
         description="Create chef server for cloud edge env.",
         prog='create_chef_server.py')
-    parser.add_argument(
-        '--image', help='image id or name Ubuntu 12.10 \
-        (Quantal Quetzal)', default='Ubuntu 12.10 (Quantal Quetzal)')
+    #parser.add_argument(
+    #    '--image', help='image id or name Ubuntu 12.10 \
+    #    (Quantal Quetzal)', default='Ubuntu 12.10 (Quantal Quetzal)')
     parser.add_argument(
         '--flavor', help='flavor id or name (default: 512MB Standard \
         Instance)', default='512MB Standard Instance')
@@ -196,6 +230,9 @@ def main():
     # Check public key file
     cs_files = check_pub_key_file(args.public_keyfile)
 
+    # Add the install script to the cs_files dict
+    cs_files = create_install_script(cs_files)
+
     # Create the servers by server_count
     orig_server = create_server(csobj, args.fqdn, flavor_id, image_id,
                                 cs_files)
@@ -205,6 +242,10 @@ def main():
 
     # Create a DNS entry for the server
     create_dns(cdnsobj, args.fqdn, updated_server.accessIPv4)
+
+    # Run the command to install chef
+    subprocess.call(["ssh", "root@" + updated_server.accessIPv4,
+                     "bash", "/root/install_chef.sh"])
 
     # Print server information and exit
     print_info(orig_server.adminPass, updated_server)
