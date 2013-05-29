@@ -10,8 +10,8 @@ Description
 I'm creating this mainly to store scripts and cookbooks for creating a cloud edge device which sits in front of private networks for the dmz/webhead, application and database layers.  Its also ment to security access between each network, allow vpn access to the private networks and perform some basic load balancing for the webheads.
 
 
-Workstation
------------
+Workstation Prep
+----------------
 
 We will start out with preparing the workstation.  This was designed for a Rackspace cloud environment, so you will need to set up pyrax on your workstation. You can follow the instructions at the following link to set it up.
 
@@ -44,6 +44,8 @@ If you want a different region then DFW you may want create a pyrax config file 
 
 
 
+
+
 Chef Server Creation
 --------------------
 
@@ -52,7 +54,9 @@ create_chef_server.py is a python script that uses pyrax to create the chef serv
     # python deploy_scripts/create_chef_server.py  --fqdn chef.<yourdomain>.com --public_keyfile /root/.ssh/id_rsa.pub
 
 
-Log into the server and set your password(https://chef.<yourdomain>.com).  The password will be given on the front page, so change it quick. 
+Log into the server and set your password(https://chef.(yourdomain).com).  The password will be given on the front page, so change it quick. 
+
+
 
 
 
@@ -66,15 +70,15 @@ We will need to copy the /etc/chef-server/chef-validator.pem(and admin.pem) to y
 
 
     # mkdir -p ~/.chef
-    # scp root@chef.linuxrackers.com:/etc/chef-server/chef-validator.pem ~/.chef/
-    # scp root@chef.linuxrackers.com:/etc/chef-server/admin.pem ~/.chef/
+    # scp root@chef.<yourdomain>.com:/etc/chef-server/chef-validator.pem ~/.chef/
+    # scp root@chef.<yourdomain>.com:/etc/chef-server/admin.pem ~/.chef/
     # chown -R $USER ~/.chef
 
 
 
     # knife configure --initial
     Overwrite /home/workstation/.chef/knife.rb? (Y/N) Y
-    Please enter the chef server URL: [http://wiki.linuxrackers.com:4000] https://chef.<yourdomain>.com
+    Please enter the chef server URL: [http://curhost.<yourdomain>.com:4000] https://chef.<yourdomain>.com
     Please enter a name for the new user: [shannon.mitchell] workstation
     Please enter the existing admin name: [admin] 
     Please enter the location of the existing admin's private key: [/etc/chef/admin.pem] /home/workstation/.chef/admin.pem
@@ -112,3 +116,14 @@ Finish setting up knife-rackspacce.
 
 Create the Cloud Edge Device
 ----------------------------
+
+create_edge_server.py does the following:
+
+  * creates 3 networks(web01, app01 and data01). 
+  * creates a new sever with the public, private and 3 nics for the web01, app01 and data01 networks.
+  * bootstraps the server using 'knife bootstrap' and ssh keys
+  * assigns the edge device its proper chef roles and configures the server
+
+    # python deploy_scripts/create_edge_server.py  --fqdn chef.<yourdomain>.com --public_keyfile /root/.ssh/id_rsa.pub
+
+(work in progress)
