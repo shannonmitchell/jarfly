@@ -243,9 +243,9 @@ def main():
     # Create a DNS entry for the server
     create_dns(cdnsobj, args.fqdn, updated_server.accessIPv4)
 
-    # Bootstrap the edge server
-    print "Bootstrapping the server for Chef"
-    subprocess.call(["knife", "bootstrap", edge_server.accessIPv4])
+    # Run the command to install chef
+    subprocess.call(["ssh", "root@" + updated_server.accessIPv4,
+                     "bash", "/root/install_chef.sh"])
 
     # Print server information and exit
     print_info(orig_server.adminPass, updated_server)
