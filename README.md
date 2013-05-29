@@ -124,6 +124,7 @@ create_edge_server.py does the following:
   * bootstraps the server using 'knife bootstrap' and ssh keys
   * assigns the edge device its proper chef roles and configures the server
 
+The following can be used to deploy it.
+
     # python deploy_scripts/create_edge_server.py  --fqdn chef.<yourdomain>.com --public_keyfile /root/.ssh/id_rsa.pub
 
-(work in progress)
