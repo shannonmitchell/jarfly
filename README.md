@@ -114,6 +114,7 @@ Finish setting up knife-rackspacce.
 
 
 
+
 Create the Cloud Edge Device
 ----------------------------
 
@@ -127,4 +128,41 @@ create_edge_server.py does the following:
 The following can be used to deploy it.
 
     # python deploy_scripts/create_edge_server.py  --fqdn chef.<yourdomain>.com --public_keyfile /root/.ssh/id_rsa.pub
+
+
+Install 3rd Party Cookbooks
+---------------------------
+
+    # knife cookbook site download yum
+    Downloading yum from the cookbooks site at version 2.2.2 to /root/yum-2.2.2.tar.gz
+    Cookbook saved: /root/yum-2.2.2.tar.gz
+    # tar -zxvf yum-2.2.2.tar.gz
+    # knife cookbook upload --cookbook-path ./ yum
+    Uploading yum            [2.2.2]
+    Uploaded 1 cookbook.
+
+
+    # knife cookbook site download openvpn
+    Downloading openvpn from the cookbooks site at version 1.1.0 to /root/cookbooks/openvpn-1.1.0.tar.gz
+    Cookbook saved: /root/cookbooks/openvpn-1.1.0.tar.gz
+    # tar -zxvf openvpn-1.1.0.tar.gz 
+    # knife cookbook upload --cookbook-path ./ openvpn
+
+
+
+
+Upload the Edge Device Cookbook
+--------------------------------
+
+    # knife cookbook upload --cookbook-path ~/jarfly/cookbooks/ cloud_edge_cookbook
+    Uploading cloud_edge_cookbook [0.1.0]
+    Uploaded 1 cookbook.
+
+
+
+
+Assign the Cookbook to the Edge Device
+--------------------------------------
+
+    # knife node run_list add edge01.linuxrackers.com 'cloud_edge_cookbook'
 

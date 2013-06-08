@@ -1,0 +1,63 @@
+# Firewall configuration written by chef cookbook
+# Manual customization of this file is not recommended.
+
+###############
+# FILTER Table
+###############
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+# Chef generated chains
+<% @iptables_filter_chains.each do |entry| -%>
+<%= entry %>
+<% end -%>
+
+
+# Chef generated input jumps
+<% @iptables_filter_chain_inputjumps.each do |entry| -%>
+<%= entry %>
+<% end -%>
+
+# Chef generated filter input rules
+<% @iptables_filter_chain_input.each do |entry| -%>
+<%= entry %>
+<% end -%>
+
+# Chef generated forward jumps
+<% @iptables_filter_chain_forwardjumps.each do |entry| -%>
+<%= entry %>
+<% end -%>
+
+# Chef generated filter forward rules
+<% @iptables_filter_chain_forward.each do |entry| -%>
+<%= entry %>
+<% end -%>
+
+# Chef generated application chains
+<% @iptables_filter_chain_openvpn_input.each do |entry| -%>
+<%= entry %>
+<% end -%>
+<% @iptables_filter_chain_openvpn_forward.each do |entry| -%>
+<%= entry %>
+<% end -%>
+
+
+
+COMMIT
+
+
+###############
+# Nat Table
+###############
+*nat
+:PREROUTING ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+
+# Chef generated nat postrouting rules
+<% @iptables_nat_chain_postrouting.each do |entry| -%>
+<%= entry %>
+<% end -%>
+
+COMMIT
