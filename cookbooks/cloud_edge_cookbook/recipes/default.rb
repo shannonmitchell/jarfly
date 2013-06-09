@@ -76,6 +76,7 @@ node.override['openvpn']['netmask'] = "255.255.255.0"
 node.override['openvpn']['key']['country'] = "US"
 node.override['openvpn']['key']['province'] = "TX"
 node.override['openvpn']['key']['city'] = "San Antonio"
+node.override['openvpn']['key']['org'] = "edge01.linuxrackers.com"
 node.override['openvpn']['key']['email'] = "shannon.mitchell@linuxrackers.com"
 node.override['openvpn']['routes'] = [
 	"push 'route 192.168.44.0 255.255.255.0'", 
@@ -84,3 +85,4 @@ node.override['openvpn']['routes'] = [
 ]
 
 include_recipe "openvpn"
+include_recipe "openvpn::users"

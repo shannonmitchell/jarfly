@@ -130,8 +130,14 @@ The following can be used to deploy it.
     # python deploy_scripts/create_edge_server.py  --fqdn chef.<yourdomain>.com --public_keyfile /root/.ssh/id_rsa.pub
 
 
+
+Configure the Edge Device with Chef
+-----------------------------------
+
+Some of this is manual now as I'm still in the process of learning chef.  This will be cleaned up in the future. 
+
+
 Install 3rd Party Cookbooks
----------------------------
 
     # knife cookbook site download yum
     Downloading yum from the cookbooks site at version 2.2.2 to /root/yum-2.2.2.tar.gz
@@ -150,9 +156,7 @@ Install 3rd Party Cookbooks
 
 
 
-
 Upload the Edge Device Cookbook
---------------------------------
 
     # knife cookbook upload --cookbook-path ~/jarfly/cookbooks/ cloud_edge_cookbook
     Uploading cloud_edge_cookbook [0.1.0]
@@ -160,9 +164,52 @@ Upload the Edge Device Cookbook
 
 
 
-
 Assign the Cookbook to the Edge Device
---------------------------------------
 
     # knife node run_list add edge01.linuxrackers.com 'cloud_edge_cookbook'
+
+
+Log in the edg01 device and test with chef-client
+
+    # chef-client
+
+
+
+Adding VPN Keys and Configuring the Client
+-------------------------------------------
+
+The openvpn cookbook uses a 'users' databag to create certificates for vpn connectivity.  You an do the following to create a databag user and re-run chef-client on the host.
+
+    # knife data bag create users shannonmitchell
+    {
+      "id": "shannonmitchell"
+    }
+
+   [root@edge01]# chef-client
+
+
+This will create a .tar.gz file under /etc/openvpn/keys. You can send this to the user needing to connect.  It contains the private key, ca cert and user cert.
+
+
+Configuring VPN Client(NetworkManager/Fedora Tested)
+----------------------------------------------------
+
+Copy the username.tar.gz from the /etc/openvpn/keys directory to your vpn client.  If you have selinux enabled you will need to fix the context(works on fedora 18)
+
+    # chcon -t openvpn_t <username>.crt
+    # chcon -t openvpn_t <username>.key
+    # chcon -t openvpn_t ca.crt
+
+
+  *  Network Manger → Network Settings
+  *  Click '+' ⇒ 'VPN' ⇒ 'Create' ⇒ 'OpenVPN' ⇒ 'Create'
+  *  Connection name: <something descriptive>
+  *  Ipv4 Settings(Tab) ⇒ 'Routes' ⇒ 'Use this connection only for resources on its network'
+  *  VPN(Tab) ⇒ Gateway: <ip address of edge device>
+  *  VPN(Tab) ⇒ User Cert, Private Key and CA Cert(copy these from /etc/openvpn/easy-rsa/keys and select them.
+  *  VPN(Tab) ⇒ 'Advanced' ⇒ Unselect 'Use a TCP Connection' and select 'Use LZO data compression'
+
+
+If you have issues, run a tail on /var/log/messages to find the errors. You will get a tls connect error if you didn't copy and select the ca.cert from the server. 
+
 
