@@ -1,16 +1,28 @@
 #!/bin/env python
 
-import syslog
+import pyrax
+import jarlog
 import config
 import vyatta
 import jarnets
+import ConfigParser
 
 
 def processJar(confobj, curjar):
 
+    try:
+        # Set up the jar region
+        globalRegion = confobj.get("global", "region")
+        jarRegion = confobj.get(curjar, "region")
+        if jarRegion != globalRegion:
+            jarlog.logit('INFO', "Setting jar region to: %s" % jarRegion)
+            pyrax.connect_to_services(region=jarRegion)
+    except ConfigParser.NoOptionError:
+        jarlog.logit('INFO', "Jar region not set, keeping global of %s"
+                     % globalRegion)
+
     # Start processing the current jar
-    syslog.syslog(syslog.LOG_INFO | syslog.LOG_DAEMON,
-                  "Processing jar %s" % curjar)
+    jarlog.logit('INFO', "Processing jar %s" % curjar)
 
     # Make sure networks exist
     dmznet = jarnets.configureNetwork(confobj,
@@ -29,11 +41,21 @@ def processJar(confobj, curjar):
 
 def main():
 
+    # Log the startup
+    jarlog.logit('INFO', "Starting jarflyd")
+
     # Get the config
     confobj = config.GetConfig()
 
-    # Log the startup
-    syslog.syslog(syslog.LOG_INFO | syslog.LOG_DAEMON, "Starting jarflyd")
+    # Set up the credentials file
+    cred_file = confobj.get("global", "credentials_file")
+    jarlog.logit('INFO', "Authenticating using cred file: %s" % cred_file)
+    pyrax.set_credential_file(cred_file)
+
+    # Set up the default region
+    globalRegion = confobj.get("global", "region")
+    jarlog.logit('INFO', "Setting global region to: %s" % globalRegion)
+    pyrax.connect_to_services(region=globalRegion)
 
     # Start reading in the controller sections
     sections = confobj.sections()

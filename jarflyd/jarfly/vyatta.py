@@ -1,20 +1,13 @@
 #!/bin/env python
 
 import pyrax
-import syslog
+import jarlog
 
 
 def configureDevice(confobj, curjar, dmznet, appnet, datanet):
 
-    # Set up the credentials file
-    cred_file = confobj.get("global", "credentials_file")
-    syslog.syslog(syslog.LOG_INFO | syslog.LOG_DAEMON,
-                  "Authenticating using cred file: %s" % cred_file)
-    pyrax.set_credential_file(cred_file)
-
     # Start processing the current jar
-    syslog.syslog(syslog.LOG_INFO | syslog.LOG_DAEMON,
-                  "Checking vyatta config for: %s" % curjar)
+    jarlog.logit('INFO', "Checking vyatta config for: %s" % curjar)
 
     # Create cloudservers object
     csobj = pyrax.cloudservers
