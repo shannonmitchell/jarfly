@@ -2,6 +2,7 @@ jarfly
 ======
 
 RS cloud environment secured behind an edge device. (Work in Progress)
+(I'm currently removing the manual scripts and working on jarflyd which uses a vyatta device and rackspace cloud load balancers instead.  The steps will change soon)
 
 
 Description
