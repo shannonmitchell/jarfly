@@ -4,7 +4,7 @@ import pyrax
 import jarlog
 
 
-def configureDevice(confobj, curjar, dmznet, appnet, datanet):
+def configureDevice(confobj, curjar, dmznet, appnet, datanet, keyname):
 
     # Start processing the current jar
     jarlog.logit('INFO', "Checking vyatta config for: %s" % curjar)
@@ -16,12 +16,14 @@ def configureDevice(confobj, curjar, dmznet, appnet, datanet):
     images = csobj.list_images()
     for image in images:
         if image.name == confobj.get(curjar, "vyatta_image"):
+            jarlog.logit('INFO', "Found image: %s" % image.name)
             vimage = image
 
     # Check for flavor
     flavors = csobj.list_flavors()
     for flavor in flavors:
         if flavor.name == confobj.get(curjar, "vyatta_flavor"):
+            jarlog.logit('INFO', "Found flavor: %s" % flavor.name)
             vflavor = flavor
 
     # Configure nics argument
@@ -31,3 +33,26 @@ def configureDevice(confobj, curjar, dmznet, appnet, datanet):
                  {'net-id': appnet.id},
                  {'net-id': datanet.id}]
 
+    # Create the vyatta server
+    addserver = 1
+    vyatta_name = confobj.get(curjar, 'vyatta_name')
+    servers = csobj.servers.list()
+    for server in servers:
+        if server.name == vyatta_name:
+            jarlog.logit('INFO', "Server" + server.name +
+                         " already exists.  Skipping creation")
+            addserver = 0
+
+    if addserver == 1:
+        print "keyname is: " + keyname
+        origserver = csobj.servers.create(vyatta_name, vimage.id, vflavor.id,
+                                          key_name=keyname, nics=nics_list)
+
+    finserver = pyrax.utils.wait_until(origserver, "status",
+                                       ["ACTIVE", "ERROR"])
+
+    # print the network & pass info
+    print "Server Networks: "
+    print finserver.networks
+    print "Server Password "
+    print finserver.adminPass
