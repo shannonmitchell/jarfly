@@ -2,6 +2,7 @@ README.txt
 setup.py
 jarfly/__init__.py
 jarfly/config.py
+jarfly/jardns.py
 jarfly/jarflyd.py
 jarfly/jarlog.py
 jarfly/jarnets.py

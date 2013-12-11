@@ -6,6 +6,7 @@ import jarlog
 import config
 import vyatta
 import jarnets
+import jardns
 import ConfigParser
 
 
@@ -54,6 +55,19 @@ def processJar(confobj, curjar):
     except ConfigParser.NoOptionError:
         jarlog.logit('INFO', "Jar region not set, keeping global of %s"
                      % globalRegion)
+
+    # Get the current domain and create it if needed
+    domainEmail = confobj.get("global", "dns_email")
+    try:
+        globalDomain = confobj.get("global", "dns_domain")
+        jarDomain = confobj.get(curjar, "dns_domain")
+        if jarDomain != globalDomain:
+            jarlog.logit('INFO', "Setting jar domain to: %s" % jarDomain)
+            jardns.checkDomain(jarDomain, domainEmail)
+    except ConfigParser.NoOptionError:
+        jarlog.logit('INFO', "Jar domain not set, keeping global of %s"
+                     % globalDomain)
+        jardns.checkDomain(globalDomain, domainEmail)
 
     # Make sure networks exist
     dmznet = jarnets.configureNetwork(confobj,

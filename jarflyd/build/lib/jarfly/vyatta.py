@@ -1,6 +1,7 @@
 #!/bin/env python
 
 import pyrax
+import jardns
 import jarlog
 
 
@@ -42,17 +43,20 @@ def configureDevice(confobj, curjar, dmznet, appnet, datanet, keyname):
             jarlog.logit('INFO', "Server" + server.name +
                          " already exists.  Skipping creation")
             addserver = 0
+            curserver = server
 
     if addserver == 1:
-        print "keyname is: " + keyname
         origserver = csobj.servers.create(vyatta_name, vimage.id, vflavor.id,
                                           key_name=keyname, nics=nics_list)
 
-    finserver = pyrax.utils.wait_until(origserver, "status",
-                                       ["ACTIVE", "ERROR"])
+        finserver = pyrax.utils.wait_until(origserver, "status",
+                                           ["ACTIVE", "ERROR"])
+        print "Server Password "
+        print finserver.adminPass
+
+    # Add domain entry for the vyatta device
+    jardns.addRecord(vyatta_name, curserver.accessIPv4)
 
     # print the network & pass info
     print "Server Networks: "
-    print finserver.networks
-    print "Server Password "
-    print finserver.adminPass
+    print curserver.accessIPv4
