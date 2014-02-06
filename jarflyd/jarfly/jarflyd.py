@@ -67,7 +67,8 @@ def processJar(confobj, curjar):
     except ConfigParser.NoOptionError:
         jarlog.logit('INFO', "Jar domain not set, keeping global of %s"
                      % globalDomain)
-        jardns.checkDomain(globalDomain, domainEmail)
+
+    jardns.checkDomain(globalDomain, domainEmail)
 
     # Make sure networks exist
     dmznet = jarnets.configureNetwork(confobj,

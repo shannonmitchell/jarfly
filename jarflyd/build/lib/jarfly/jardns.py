@@ -35,13 +35,19 @@ def addRecord(recordname, recordvalue):
 
     # Create the record if needed
     domains = cdnsobj.list()
+    addrecord = 0
     for domain in domains:
-        print "record name: " + recordname
-        print "domain name: " + domain.name
         if recordname.endswith(domain.name):
             jarlog.logit('INFO', "Found domain %s for record %s"
                          % (domain.name, recordname))
             curdomain = domain
+            addrecord = 1
+
+    # Skip if domain doesn't exist
+    if addrecord == 0:
+        jarlog.logit('INFO', "Couldn't find domain for %s, Skipping record creation" % recordname)
+        return 1
+
 
     records = curdomain.list_records()
     addrecord = 1
